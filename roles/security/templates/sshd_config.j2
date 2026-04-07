@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+# 针对 Rocky Linux {{ ansible_distribution_major_version }} 的企业级安全加固
+Port {{ ssh_port }}
+Protocol 2
+HostKey /etc/ssh/ssh_host_rsa_key
+SyslogFacility AUTHPRIV
+
+# 核心认证策略
+PermitRootLogin {{ permit_root_login }}
+PasswordAuthentication {{ password_auth }}
+PubkeyAuthentication {{ pubkey_auth }}
+MaxAuthTries {{ max_auth_tries }}
+
+# 超时与空闲处理
+ClientAliveInterval 300
+ClientAliveCountMax 2
+
+# 授权用户限制 (仅允许当前部署用户)
+AllowUsers {{ ansible_user }}
+
+Subsystem sftp /usr/libexec/openssh/sftp-server

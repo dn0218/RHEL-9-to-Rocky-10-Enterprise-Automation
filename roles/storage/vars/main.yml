@@ -1,0 +1,12 @@
+---
+vg_name: "vg_data"
+# 指定你新加的两块 5G 硬盘
+pv_devices: 
+  - "/dev/sda"
+  - "/dev/sdb"
+lv_name: "lv_containers"
+# 分配 8G 空间，留一点余量给快照或后续扩展
+lv_size: "8G"
+fs_type: "xfs"
+# 挂载到 Podman 默认的存储路径或自定义路径
+mount_path: "/mnt/container_storage"

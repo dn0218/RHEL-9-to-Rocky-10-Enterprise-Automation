@@ -1,0 +1,11 @@
+---
+# 针对 Rocky 10 的安全加固变量
+ssh_port: 22
+permit_root_login: "no"
+password_auth: "no"
+pubkey_auth: "yes"
+max_auth_tries: 3
+
+# 防火墙策略
+allowed_services:
+  - ssh

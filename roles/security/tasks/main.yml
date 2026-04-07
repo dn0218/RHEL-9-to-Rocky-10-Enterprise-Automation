@@ -1,0 +1,24 @@
+---
+- name: 确保 firewalld 已安装并启动
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: 配置防火墙允许 SSH 和必要服务
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: true
+  loop: "{{ allowed_services }}"
+
+- name: 部署动态 SSH 加固模板
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0600'
+    validate: '/usr/sbin/sshd -t -f %s'
+  notify: Restart sshd service

@@ -1,0 +1,39 @@
+---
+- name: 安装 Podman 及相关工具
+  ansible.builtin.dnf:
+    name: 
+      - podman
+      - slirp4netns
+    state: present
+
+- name: 创建 Quadlet 配置目录
+  ansible.builtin.file:
+    path: /etc/containers/systemd
+    state: directory
+    mode: '0755'
+
+- name: 部署 Nginx Quadlet 声明式文件
+  ansible.builtin.copy:
+    dest: /etc/containers/systemd/nginx.container
+    content: |
+      [Unit]
+      Description=Enterprise Nginx Container (Quadlet)
+      
+      [Container]
+      Image=docker.io/library/nginx:latest
+      PublishPort=8080:80
+      
+      [Service]
+      Restart=always
+      
+      [Install]
+      WantedBy=multi-user.target
+    mode: '0644'
+  notify: Reload systemd daemon
+
+- name: 确保 Nginx 容器服务已启动并开机自启
+  ansible.builtin.systemd:
+    name: nginx
+    state: started
+    enabled: true
+    daemon_reload: true

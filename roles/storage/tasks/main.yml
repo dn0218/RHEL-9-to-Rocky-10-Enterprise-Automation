@@ -1,0 +1,38 @@
+---
+- name: 安装 LVM2 预备工具
+  ansible.builtin.dnf:
+    name: lvm2
+    state: present
+
+- name: 创建或扩展卷组 (VG) - 聚合 sda 和 sdb
+  community.general.lvg:
+    vg: "{{ vg_name }}"
+    pvs: "{{ pv_devices }}"
+    state: present
+
+- name: 管理逻辑卷 (LV) 并支持自动伸缩
+  community.general.lvol:
+    vg: "{{ vg_name }}"
+    lv: "{{ lv_name }}"
+    size: "{{ lv_size }}"
+    resizefs: true  # 关键：如果以后 lv_size 变大，它会自动调整文件系统
+    state: present
+
+- name: 格式化逻辑卷为 {{ fs_type }}
+  community.general.filesystem:
+    fstype: "{{ fs_type }}"
+    dev: "/dev/{{ vg_name }}/{{ lv_name }}"
+
+- name: 确保挂载点目录存在
+  ansible.builtin.file:
+    path: "{{ mount_path }}"
+    state: directory
+    mode: '0755'
+
+- name: 挂载文件系统并写入 /etc/fstab 实现持久化
+  ansible.posix.mount:
+    path: "{{ mount_path }}"
+    src: "/dev/{{ vg_name }}/{{ lv_name }}"
+    fstype: "{{ fs_type }}"
+    opts: defaults
+    state: mounted

@@ -1,0 +1,24 @@
+---
+- name: RHEL 9 to Rocky 10 Enterprise Automation
+  hosts: rocky_servers
+  gather_facts: true
+  
+  # 预检查：确保系统族群正确
+  pre_tasks:
+    - name: Verify OS distribution
+      assert:
+        that:
+          - ansible_distribution == "Rocky"
+          - ansible_distribution_major_version == "10"
+        fail_msg: "This playbook is only validated for Rocky Linux 10!"
+
+  roles:
+    - role: security
+      vars:
+        ssh_port: 22
+    
+    - role: storage
+      tags: storage
+      
+    - role: container_runtime
+      tags: containers
